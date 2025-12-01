@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Campus RideShare - Student Mobility Network</title>
+    <style>
+        /* ----------------- Base ----------------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --sidebar-w: 260px;
+            --accent1: #7c3aed;
+            --accent2: #a855f7;
+            --muted: #6b7280;
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --danger: #ef4444;
+            --text: #1f2937;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ----------------- Sidebar ----------------- */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1200;
+        }
+
+        .logo {
+            padding: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h2 {
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .user-profile {
+            padding: 16px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        nav.nav-menu {
+            padding: 12px 0;
+            flex: 1;
+            overflow: auto;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            cursor: pointer;
+            position: relative;
+            transition: all .18s;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: var(--accent1);
+        }
+
+        .nav-item.active {
+            background: #ede9fe;
+            color: var(--accent1);
+            font-weight: 600;
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            right: 20px;
+            background: var(--danger);
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .post-ride-btn {
+            margin: 12px 20px 20px;
+            padding: 12px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .post-ride-btn:hover {
+            background: #111827;
+        }
+
+        .sidebar-bottom {
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ----------------- Main ----------------- */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--muted);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 160px;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search-btn,
+        .filter-btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .search-btn {
+            background: var(--text);
+            color: white;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: var(--muted);
+        }
+
+        .rides-section {
+            background: var(--surface);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+        }
+
+        .rides-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .view-btn.active {
+            background: var(--text);
+            color: white;
+        }
+
+        .ride-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all .18s;
+            background: white;
+        }
+
+        .ride-card:hover {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+        }
+
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .driver-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .driver-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        }
+
+        .driver-details h3 {
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .driver-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f59e0b;
+            font-size: 14px;
+        }
+
+        .ride-badge {
+            background: var(--accent1);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .route-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .route-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .route-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .route-dot.start {
+            background: #3b82f6;
+        }
+
+        .route-dot.end {
+            background: var(--success);
+        }
+
+        .route-connector {
+            width: 2px;
+            height: 36px;
+            background: #d1d5db;
+        }
+
+        .location {
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .trip-details {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--muted);
+            flex-wrap: wrap;
+        }
+
+        .trip-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ride-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .view-details-btn {
+            padding: 10px 18px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        /* ----------------- Modal ----------------- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1500;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 720px;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+        }
+
+        .progress-step.active {
+            background: var(--accent1);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: var(--muted);
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: white;
+        }
+
+        .ride-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all .12s;
+        }
+
+        .option-card:hover {
+            border-color: var(--accent1);
+        }
+
+        .option-card.selected {
+            border-color: var(--accent1);
+            background: #f5f3ff;
+        }
+
+        /* ----------------- Login / Onboarding ----------------- */
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0, 0, 0, .4), rgba(0, 0, 0, .4)), linear-gradient(135deg, var(--accent1), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 18px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 760px;
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+        }
+
+        .login-left {
+            color: white;
+            padding: 18px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, .05), rgba(255, 255, 255, .02));
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .brand .logo-icon {
+            width: 56px;
+            height: 56px;
+            font-size: 28px;
+        }
+
+        .login-left h2 {
+            font-size: 20px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .login-left p {
+            color: rgba(255, 255, 255, .9);
+            font-size: 13px;
+        }
+
+        .login-right {
+            padding: 8px;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .role-btn.selected {
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: white;
+            border-color: transparent;
+        }
+
+        .small-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* ----------------- Messages & Profile ----------------- */
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-card {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: white;
+        }
+
+        .msg-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            font-weight: 700;
+        }
+
+        .msg-body {
+            flex: 1;
+        }
+
+        .msg-title {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .msg-sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .profile-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .profile-card {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+            background: white;
+        }
+
+        /* ----------------- Responsive tweaks ----------------- */
+        @media (max-width:880px) {
+            .login-card {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main-content {
+                margin-left: 220px;
+            }
+        }
+
+        @media (max-width:640px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <div class="logo-text">
+                <h2>Campus RideShare</h2>
+                <p>Student Mobility</p>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar" id="sidebarAvatar">S</div>
+            <div>
+                <div class="user-name" id="sidebarName">Guest</div>
+                <div style="font-size:12px;color:var(--muted);" id="sidebarRole">Not logged in</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item active" data-page="discover" onclick="showPage('discover')">🏠 Discover Rides</div>
+            <div class="nav-item" data-page="messages" onclick="showPage('messages')">💬 Messages <span class="badge"
+                    id="messagesBadge">2</span></div>
+            <div class="nav-item" data-page="profile" onclick="showPage('profile')">👤 My Profile</div>
+        </nav>
+
+        <button class="post-ride-btn" id="postRideBtn" onclick="openPostRideModal()">➕ Post Ride</button>
+
+        <div class="sidebar-bottom">
+            <div class="nav-item" onclick="openSettings()">⚙️ Settings</div>
+            <div class="nav-item" style="color:var(--danger)" id="logoutBtn">🚪 Logout</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Discover -->
+        <div id="discoverPage">
+            <div class="header">
+                <h1>Discover Rides</h1>
+                <p id="discoverSubtitle">Find your next ride</p>
+
+                <div class="search-bar" style="margin-top:16px;">
+                    <input type="text" class="search-input" placeholder="From (e.g., Main Campus)" id="searchFrom">
+                    <input type="text" class="search-input" placeholder="To (e.g., Downtown)" id="searchTo">
+                    <input type="date" class="search-input" id="filterDate" style="max-width:170px;">
+                    <button class="search-btn" onclick="applyFilters()">🔍 Search</button>
+                    <button class="filter-btn" onclick="openFilterModal()">🎛️ Filters</button>
+                </div>
+            </div>
+
+            <div class="rides-section">
+                <div class="rides-header">
+                    <h2 id="ridesCount">Available Rides</h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" id="listViewBtn" onclick="toggleView('list')">📋 List</button>
+                        <button class="view-btn" id="mapViewBtn" onclick="toggleView('map')">🗺️ Map</button>
+                    </div>
+                </div>
+
+                <div id="ridesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="messagesPage" style="display:none;">
+            <div class="header">
+                <h1>Messages</h1>
+                <p>Messages with drivers and riders — quick actions and notifications</p>
+            </div>
+            <div class="rides-section">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:260px;">
+                        <div style="margin-bottom:12px; font-weight:700;">Conversations</div>
+                        <div class="messages-list" id="conversationsList">
+                            <!-- messages injected -->
+                        </div>
+                    </div>
+                    <div style="flex:2; min-width:260px;">
+                        <div style="font-weight:700;margin-bottom:10px;">Chat</div>
+                        <div style="border:1px solid #e8e8e8;border-radius:10px;background:white;padding:12px;min-height:180px;"
+                            id="chatWindow">
+                            Select a conversation to see messages.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile -->
+        <div id="profilePage" style="display:none;">
+            <div class="header">
+                <h1>My Profile</h1>
+                <p>Manage account details and preferences</p>
+            </div>
+            <div class="rides-section">
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;"
+                                id="profileAvatar">S</div>
+                            <div>
+                                <div style="font-weight:800;font-size:18px;" id="profileName">Guest</div>
+                                <div style="color:var(--muted);" id="profileRole">Not logged in</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">About</div>
+                            <div id="profileAbout" style="font-size:14px;color:var(--text);">No bio yet.</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <div style="font-weight:700;margin-bottom:8px;">Edit Profile</div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <input id="editName" class="form-input" placeholder="Full name">
+                            <input id="editEmail" class="form-input" placeholder="Email (optional)">
+                            <select id="editRole" class="form-input">
+                                <option value="rider">Rider</option>
+                                <option value="driver">Driver</option>
+                                <option value="both">Both</option>
+                            </select>
+                            <textarea id="editAbout" class="form-input" rows="3" placeholder="Short bio"></textarea>
+                            <div style="display:flex;gap:8px;">
+                                <button class="btn btn-secondary" onclick="resetProfileEdit()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Ride Modal -->
+    <div class="modal" id="postRideModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Post a Ride</h2>
+                <button class="close-btn" onclick="closeModal('postRideModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="progress-bar">
+                    <div class="progress-step active" id="step1"></div>
+                    <div class="progress-step" id="step2"></div>
+                    <div class="progress-step" id="step3"></div>
+                </div>
+
+                <div id="modalStep1">
+                    <h3 style="margin-bottom:8px;">Where are you going?</h3>
+                    <div class="form-group">
+                        <label class="form-label">Pickup Location *</label>
+                        <input type="text" class="form-input" placeholder="e.g., Main Campus" id="pickupLocation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Drop-off Location *</label>
+                        <input type="text" class="form-input" placeholder="e.g., Airport" id="dropoffLocation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Route Details (Optional)</label>
+                        <input type="text" class="form-input" placeholder="e.g., Via Highway 101" id="routeDetails">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="closeModal('postRideModal')">Cancel</button>
+                        <button class="btn btn-primary" onclick="nextStep(2)">Next</button>
+                    </div>
+                </div>
+
+                <div id="modalStep2" style="display:none;">
+                    <h3 style="margin-bottom:8px;">When are you leaving?</h3>
+                    <div class="form-group">
+                        <label class="form-label">Date *</label>
+                        <input type="date" class="form-input" id="rideDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Departure Time *</label>
+                        <input type="time" class="form-input" id="rideTime">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Available Seats</label>
+                        <input type="number" class="form-input" value="4" min="1" max="8" id="availableSeats">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cost per Person (₹)</label>
+                        <input type="number" class="form-input" value="0" min="0" id="costPerPerson">
+                        <p style="font-size:12px;color:var(--muted);margin-top:6px;">Suggested: ₹102 based on distance
+                        </p>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="nextStep(1)">Back</button>
+                        <button class="btn btn-primary" onclick="nextStep(3)">Next</button>
+                    </div>
+                </div>
+
+                <div id="modalStep3" style="display:none;">
+                    <h3 style="margin-bottom:12px;">Ride Preferences</h3>
+                    <div class="form-group">
+                        <label class="form-label">Who can see this ride?</label>
+                        <div class="ride-options">
+                            <div class="option-card selected" onclick="selectOption(this)" data-val="college">
+                                <div class="option-title">🎓 College Community Only</div>
+                                <div class="option-description">Only verified students from your college can see and
+                                    join</div>
+                            </div>
+                            <div class="option-card" onclick="selectOption(this)" data-val="public">
+                                <div class="option-title">🌍 Public</div>
+                                <div class="option-description">Anyone can see, but only verified students can join
+                                </div>
+                            </div>
+                            <div class="option-card" onclick="selectOption(this)" data-val="friends">
+                                <div class="option-title">👥 Friends Only</div>
+                                <div class="option-description">Only your connected friends can see this ride</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="nextStep(2)">Back</button>
+                        <button class="btn btn-primary" onclick="postRide()">Post Ride</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div class="modal" id="filterModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Filters</h2>
+                <button class="close-btn" onclick="closeModal('filterModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label class="form-label">From</label>
+                        <input id="filterFrom" class="form-input" placeholder="Main Campus">
+                    </div>
+                    <div>
+                        <label class="form-label">To</label>
+                        <input id="filterTo" class="form-input" placeholder="Downtown">
+                    </div>
+                    <div>
+                        <label class="form-label">Date</label>
+                        <input id="filterDateModal" type="date" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Max Price (₹)</label>
+                        <input id="filterMaxPrice" type="number" class="form-input" min="0">
+                    </div>
+                    <div>
+                        <label class="form-label">Only Campus Rides</label>
+                        <select id="filterCampusOnly" class="form-input">
+                            <option value="any">Any</option>
+                            <option value="campus">Campus Only</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Sort by</label>
+                        <select id="filterSort" class="form-input">
+                            <option value="new">Newest</option>
+                            <option value="price-low">Price: Low → High</option>
+                            <option value="price-high">Price: High → Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+                    <button class="btn btn-primary" onclick="applyFiltersFromModal()">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen" aria-hidden="false">
+        <div class="login-card">
+            <div class="login-left">
+                <div class="brand">
+                    <div class="logo-icon">🎓</div>
+                    <div>
+                        <div style="font-weight:800;color:white;font-size:18px;">Campus RideShare</div>
+                        <div style="font-size:12px;color:rgba(255,255,255,.85)">Student Mobility Network</div>
+                    </div>
+                </div>
+                <h2>Welcome!</h2>
+                <p style="margin-top:10px;">Connect with fellow students — share rides, save money, and reduce campus
+                    traffic. Choose your role, enter basic info and you're ready to go.</p>
+            </div>
+
+            <div class="login-right">
+                <div style="font-weight:800;font-size:16px;margin-bottom:8px;">Sign in to continue</div>
+
+                <div class="form-group">
+                    <label class="form-label">Display name</label>
+                    <input id="loginName" class="form-input" placeholder="e.g., Sai Kumar">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email (optional)</label>
+                    <input id="loginEmail" class="form-input" placeholder="you@college.edu">
+                </div>
+
+                <div class="form-group">
+                    <div style="font-weight:700;margin-bottom:6px;">Are you a...</div>
+                    <div class="role-buttons">
+                        <div class="role-btn" data-role="rider" onclick="selectRoleBtn(this)">Rider</div>
+                        <div class="role-btn" data-role="driver" onclick="selectRoleBtn(this)">Driver</div>
+                        <div class="role-btn selected" data-role="both" onclick="selectRoleBtn(this)">Both</div>
+                    </div>
+                    <div class="small-note">Pick "Rider" to be able to request rides and see the "Post Ride" button
+                        disabled. "Driver" can post rides. "Both" gets both capabilities.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">College / University</label>
+                    <input id="loginCollege" class="form-input" placeholder="e.g., Main University">
+                </div>
+
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button class="btn btn-secondary" onclick="guestContinue()">Continue as Guest</button>
+                    <button class="btn btn-primary" onclick="doLogin()">Sign in</button>
+                </div>
+
+                <div style="margin-top:10px; color:var(--muted); font-size:13px;">
+                    By signing in you accept our community guidelines.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ----------------- Data & state ----------------- */
+        const rides = [
+            // seed some rides
+            { id: 1, driver: 'Ananya', pickup: 'Main Campus', dropoff: 'Downtown', date: addDaysISO(1), time: '09:30', seats: 3, price: 80, rating: '4.8', badge: 'Campus', visibility: 'college' },
+            { id: 2, driver: 'Ravi', pickup: 'North Gate', dropoff: 'Airport', date: addDaysISO(2), time: '13:00', seats: 2, price: 350, rating: '4.6', badge: 'Campus', visibility: 'public' },
+            { id: 3, driver: 'Megha', pickup: 'South Campus', dropoff: 'City Center', date: addDaysISO(0), time: '18:00', seats: 4, price: 50, rating: '4.9', badge: 'Campus', visibility: 'friends' },
+            { id: 4, driver: 'Karan', pickup: 'Main Campus', dropoff: 'Tech Park', date: addDaysISO(1), time: '08:00', seats: 3, price: 120, rating: '4.5', badge: 'Outside', visibility: 'public' }
+        ];
+        let filteredRides = [...rides];
+        let user = loadUser() || null;
+        let selectedRole = 'both';
+        let selectedVisibility = 'college';
+        let currentView = 'list';
+        let conversations = [
+            { id: 1, with: 'Ananya', last: 'Hi! I have 2 seats left for 9:30', avatar: 'A', messages: [{ from: 'Ananya', text: 'Hi! I have 2 seats left for 9:30' }] },
+            { id: 2, with: 'Ravi', last: 'I can pick from North Gate', avatar: 'R', messages: [{ from: 'Ravi', text: 'I can pick from North Gate' }] }
+        ];
+
+        /* ----------------- Utilities ----------------- */
+        function addDaysISO(days) { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); }
+        function formatFriendlyDate(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+        function saveUser() { localStorage.setItem('cr_user', JSON.stringify(user)); updateUIForUser(); }
+        function loadUser() { try { return JSON.parse(localStorage.getItem('cr_user')); } catch (e) { return null; } }
+        function clearUser() { localStorage.removeItem('cr_user'); user = null; updateUIForUser(); }
+
+        /* ----------------- Login / Onboarding ----------------- */
+        function selectRoleBtn(el) {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRole = el.dataset.role;
+        }
+
+        function doLogin() {
+            const name = document.getElementById('loginName').value.trim();
+            const email = document.getElementById('loginEmail').value.trim();
+            const college = document.getElementById('loginCollege').value.trim();
+            if (!name) {
+                alert('Please enter a display name');
+                return;
+            }
+            user = {
+                name, email, college, role: selectedRole, avatar: (name[0] || 'G').toUpperCase(), about: ''
+            };
+            saveUser();
+            closeLogin();
+            initAfterLogin();
+            alert(`Welcome, ${name}! You are signed in as ${selectedRole.toUpperCase()}.`);
+        }
+
+        function guestContinue() {
+            user = { name: 'Guest', email: '', college: '', role: 'rider', avatar: 'G', about: '' };
+            saveUser();
+            closeLogin();
+            initAfterLogin();
+        }
+
+        function closeLogin() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('loginScreen').ariaHidden = 'true';
+        }
+
+        function updateUIForUser() {
+            const nameEl = document.getElementById('sidebarName');
+            const avatarEl = document.getElementById('sidebarAvatar');
+            const roleEl = document.getElementById('sidebarRole');
+            const postBtn = document.getElementById('postRideBtn');
+            const profileName = document.getElementById('profileName');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileRole = document.getElementById('profileRole');
+
+            if (user) {
+                nameEl.textContent = user.name;
+                avatarEl.textContent = (user.avatar || user.name[0] || 'S').toUpperCase();
+                roleEl.textContent = (user.role || 'rider').toUpperCase();
+                profileName.textContent = user.name;
+                profileAvatar.textContent = (user.avatar || user.name[0] || 'S').toUpperCase();
+                profileRole.textContent = (user.role || 'rider');
+                // show/hide post ride button: only for driver or both or if rider allowed to post per request
+                if (user.role === 'driver' || user.role === 'both') {
+                    postBtn.style.display = 'flex';
+                } else {
+                    // if rider-only we can still allow "request ride" but not post - hide post button
+                    postBtn.style.display = 'none';
+                }
+                // set fields in profile edit
+                document.getElementById('editName').value = user.name || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editRole').value = user.role || 'rider';
+                document.getElementById('editAbout').value = user.about || '';
+                // hide login screen if already present
+                if (document.getElementById('loginScreen').style.display !== 'none') {
+                    closeLogin();
+                }
+            } else {
+                nameEl.textContent = 'Guest';
+                avatarEl.textContent = 'G';
+                roleEl.textContent = 'Not logged in';
+                profileName.textContent = 'Guest';
+                profileAvatar.textContent = 'G';
+                profileRole.textContent = 'Not logged in';
+                postBtn.style.display = 'none';
+                // show login screen
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        }
+
+        /* ----------------- Logout ----------------- */
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (!user) { // not logged
+                alert('You are not signed in.');
+                return;
+            }
+            const ok = confirm('Do you want to logout?');
+            if (!ok) return;
+            clearUser();
+            // show login screen again
+            document.getElementById('loginScreen').style.display = 'flex';
+            // reset UI to discover
+            showPage('discover');
+            displayRides();
+        });
+
+        /* ----------------- Pages ----------------- */
+        function showPage(page) {
+            document.getElementById('discoverPage').style.display = 'none';
+            document.getElementById('messagesPage').style.display = 'none';
+            document.getElementById('profilePage').style.display = 'none';
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const items = document.querySelectorAll('.nav-item');
+            if (page === 'discover') {
+                document.getElementById('discoverPage').style.display = 'block';
+                items[0].classList.add('active');
+            } else if (page === 'messages') {
+                document.getElementById('messagesPage').style.display = 'block';
+                items[1].classList.add('active');
+            } else if (page === 'profile') {
+                document.getElementById('profilePage').style.display = 'block';
+                items[2].classList.add('active');
+            }
+            // load dynamic content if needed
+            if (page === 'messages') renderConversations();
+            if (page === 'profile') loadProfile();
+        }
+
+        function openSettings() { alert('Settings coming soon — you can edit profile and preferences in the Profile tab.'); }
+
+        /* ----------------- Post ride flow ----------------- */
+        let currentStep = 1;
+        function openPostRideModal() {
+            if (!user) {
+                alert('Please sign in to post a ride.');
+                return;
+            }
+            // only drivers or both can post rides
+            if (!(user.role === 'driver' || user.role === 'both')) {
+                alert('Only users with role DRIVER or BOTH can post rides. You are currently: ' + (user.role || 'rider').toUpperCase());
+                return;
+            }
+
+            document.getElementById('postRideModal').classList.add('active');
+            currentStep = 1;
+            updateModalStep();
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function nextStep(step) {
+            currentStep = step;
+            updateModalStep();
+        }
+
+        function updateModalStep() {
+            document.getElementById('modalStep1').style.display = currentStep === 1 ? 'block' : 'none';
+            document.getElementById('modalStep2').style.display = currentStep === 2 ? 'block' : 'none';
+            document.getElementById('modalStep3').style.display = currentStep === 3 ? 'block' : 'none';
+            document.getElementById('step1').classList.toggle('active', currentStep >= 1);
+            document.getElementById('step2').classList.toggle('active', currentStep >= 2);
+            document.getElementById('step3').classList.toggle('active', currentStep >= 3);
+        }
+
+        function selectOption(element) {
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedVisibility = element.dataset.val || 'college';
+        }
+
+        function postRide() {
+            // validate required
+            const p = document.getElementById('pickupLocation').value.trim();
+            const d = document.getElementById('dropoffLocation').value.trim();
+            const dt = document.getElementById('rideDate').value;
+            const tm = document.getElementById('rideTime').value;
+            if (!p || !d || !dt || !tm) {
+                alert('Please fill required ride details (pickup, dropoff, date, time).');
+                return;
+            }
+            const newRide = {
+                id: rides.length + 1,
+                driver: user.name,
+                pickup: p,
+                dropoff: d,
+                date: dt,
+                time: tm,
+                seats: parseInt(document.getElementById('availableSeats').value || 4, 10),
+                price: parseFloat(document.getElementById('costPerPerson').value || 0),
+                rating: '5',
+                badge: 'Campus',
+                visibility: selectedVisibility
+            };
+            rides.unshift(newRide); // newest first
+            filteredRides = [...rides];
+            displayRides();
+            closeModal('postRideModal');
+            // reset form
+            document.getElementById('pickupLocation').value = '';
+            document.getElementById('dropoffLocation').value = '';
+            document.getElementById('routeDetails').value = '';
+            document.getElementById('rideDate').value = '';
+            document.getElementById('rideTime').value = '';
+            document.getElementById('availableSeats').value = '4';
+            document.getElementById('costPerPerson').value = '0';
+            selectedVisibility = 'college';
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector('.option-card[data-val="college"]').classList.add('selected');
+            alert('Ride posted successfully!');
+        }
+
+        /* ----------------- Display rides + search + filters ----------------- */
+        function displayRides(list = filteredRides) {
+            const container = document.getElementById('ridesContainer');
+            if (!list || list.length === 0) {
+                container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📍</div>
+            <div class="empty-text">No rides found</div>
+            <div style="color:#9ca3af;font-size:14px;margin-top:8px;">Try adjusting your search criteria or filters.</div>
+          </div>
+        `;
+                document.getElementById('ridesCount').textContent = 'Available Rides - 0 rides found';
+                return;
+            }
+            document.getElementById('ridesCount').textContent = `Available Rides - ${list.length} ride${list.length !== 1 ? 's' : ''} found`;
+            container.innerHTML = list.map(ride => `
+        <div class="ride-card" data-id="${ride.id}">
+          <div class="ride-header">
+            <div class="driver-info">
+              <div class="driver-avatar">${ride.driver[0].toUpperCase()}</div>
+              <div class="driver-details">
+                <h3>${ride.driver}</h3>
+                <div class="driver-rating">
+                  <span>⭐</span><span>${ride.rating}</span>
+                  <span style="color:var(--muted);font-size:13px;">• ${ride.badge}</span>
+                </div>
+              </div>
+            </div>
+            <div class="ride-badge">${ride.badge}</div>
+          </div>
+
+          <div class="route-info">
+            <div class="route-line">
+              <div class="route-dot start"></div>
+              <div class="route-connector"></div>
+              <div class="route-dot end"></div>
+            </div>
+            <div class="route-details">
+              <div class="location">${escapeHtml(ride.pickup)}</div>
+              <div style="margin:8px 0;color:var(--muted);font-size:12px;">↓ Direct route • ${ride.visibility}</div>
+              <div class="location">${escapeHtml(ride.dropoff)}</div>
+            </div>
+          </div>
+
+          <div class="trip-details">
+            <div class="trip-detail"><span>📅</span><span>${formatFriendlyDate(ride.date)}</span></div>
+            <div class="trip-detail"><span>🕐</span><span>${ride.time || '-'}</span></div>
+            <div class="trip-detail"><span>👥</span><span>${ride.seats} seats available</span></div>
+            <div class="trip-detail"><span>💲</span><span>₹${ride.price.toFixed ? ride.price.toFixed(0) : ride.price}</span></div>
+          </div>
+
+          <div class="ride-footer">
+            <div>
+              <div class="price">₹${ride.price.toFixed ? ride.price.toFixed(0) : ride.price}</div>
+              <div class="price-label">per person</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="view-details-btn" onclick="viewRideDetails(${ride.id})">View Details</button>
+              ${user && (user.role === 'rider' || user.role === 'both') ? `<button class="view-details-btn" style="background:#10b981;" onclick="requestSeat(${ride.id})">Request</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        function viewRideDetails(id) {
+            const r = rides.find(x => x.id === id);
+            if (!r) return alert('Ride not found');
+            alert(`Ride details\nDriver: ${r.driver}\nFrom: ${r.pickup}\nTo: ${r.dropoff}\nDate: ${formatFriendlyDate(r.date)}\nTime: ${r.time}\nSeats: ${r.seats}\nPrice: ₹${r.price}`);
+        }
+
+        function requestSeat(id) {
+            if (!user) { alert('Please sign in to request a seat.'); return; }
+            const r = rides.find(x => x.id === id);
+            if (!r) return alert('Ride not found');
+            // naive seat request simulation
+            if (r.seats <= 0) return alert('No seats available');
+            r.seats -= 1;
+            displayRides();
+            alert(`Seat requested for ride with ${r.driver}. They'll message you shortly.`);
+        }
+
+        // basic search + simple filters
+        function applyFilters() {
+            const from = document.getElementById('searchFrom').value.trim().toLowerCase();
+            const to = document.getElementById('searchTo').value.trim().toLowerCase();
+            const date = document.getElementById('filterDate').value;
+            filteredRides = rides.filter(r => {
+                if (from && !r.pickup.toLowerCase().includes(from)) return false;
+                if (to && !r.dropoff.toLowerCase().includes(to)) return false;
+                if (date && r.date !== date) return false;
+                // visibility: rider should only see rides allowed for them
+                if (user && user.role === 'rider') {
+                    // riders can see public & college & friends; but if ride is driver-only private that's fine — simplified
+                }
+                return true;
+            });
+            displayRides();
+        }
+
+        function openFilterModal() { document.getElementById('filterModal').classList.add('active'); }
+        function closeFilterModal() { document.getElementById('filterModal').classList.remove('active'); }
+        function clearFilters() {
+            document.getElementById('filterFrom').value = '';
+            document.getElementById('filterTo').value = '';
+            document.getElementById('filterDateModal').value = '';
+            document.getElementById('filterMaxPrice').value = '';
+            document.getElementById('filterCampusOnly').value = 'any';
+            document.getElementById('filterSort').value = 'new';
+        }
+        function applyFiltersFromModal() {
+            const from = document.getElementById('filterFrom').value.trim().toLowerCase();
+            const to = document.getElementById('filterTo').value.trim().toLowerCase();
+            const date = document.getElementById('filterDateModal').value;
+            const maxPrice = parseFloat(document.getElementById('filterMaxPrice').value || '0');
+            const campusOnly = document.getElementById('filterCampusOnly').value;
+            const sort = document.getElementById('filterSort').value;
+
+            filteredRides = rides.filter(r => {
+                if (from && !r.pickup.toLowerCase().includes(from)) return false;
+                if (to && !r.dropoff.toLowerCase().includes(to)) return false;
+                if (date && r.date !== date) return false;
+                if (maxPrice && r.price > maxPrice) return false;
+                if (campusOnly === 'campus' && r.badge.toLowerCase() !== 'campus') return false;
+                return true;
+            });
+
+            // sort
+            if (sort === 'price-low') filteredRides.sort((a, b) => a.price - b.price);
+            else if (sort === 'price-high') filteredRides.sort((a, b) => b.price - a.price);
+            else filteredRides.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            displayRides();
+            closeModal('filterModal');
+        }
+
+        /* ----------------- Messages ----------------- */
+        function renderConversations() {
+            const list = document.getElementById('conversationsList');
+            list.innerHTML = conversations.map(c => `
+        <div class="message-card" onclick="openConversation(${c.id})">
+          <div class="msg-avatar">${c.avatar}</div>
+          <div class="msg-body">
+            <div class="msg-title">${c.with}</div>
+            <div class="msg-sub">${c.last}</div>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        function openConversation(id) {
+            const conv = conversations.find(c => c.id === id);
+            const chat = document.getElementById('chatWindow');
+            if (!conv) return;
+            chat.innerHTML = `<div style="font-weight:700;margin-bottom:8px;">Chat with ${conv.with}</div>` + conv.messages.map(m => `<div style="padding:8px;border-radius:8px;margin-bottom:8px;background:${m.from === user?.name ? '#dcfce7' : '#f3f4f6'};"><strong>${m.from}:</strong> ${escapeHtml(m.text)}</div>`).join('');
+        }
+
+        /* ----------------- Profile editing ----------------- */
+        function loadProfile() {
+            if (!user) return;
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileAvatar').textContent = user.avatar || (user.name[0] || 'G').toUpperCase();
+            document.getElementById('profileAbout').textContent = user.about || 'No bio yet.';
+            document.getElementById('editName').value = user.name || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editRole').value = user.role || 'rider';
+            document.getElementById('editAbout').value = user.about || '';
+        }
+
+        function resetProfileEdit() {
+            loadProfile();
+        }
+
+        function saveProfile() {
+            if (!user) { alert('Please sign in first'); return; }
+            user.name = document.getElementById('editName').value || user.name;
+            user.email = document.getElementById('editEmail').value || '';
+            user.role = document.getElementById('editRole').value || 'rider';
+            user.about = document.getElementById('editAbout').value || '';
+            user.avatar = (user.name[0] || 'U').toUpperCase();
+            saveUser();
+            alert('Profile updated');
+            loadProfile();
+            updateUIForUser();
+            // reflect post-ride button visibility
+            updateUIForUser();
+        }
+
+        /* ----------------- Misc UI ----------------- */
+        function toggleView(v) {
+            currentView = v;
+            if (v === 'list') {
+                document.getElementById('listViewBtn').classList.add('active');
+                document.getElementById('mapViewBtn').classList.remove('active');
+                // map view not implemented in this single-file MVP (placeholder)
+                document.getElementById('ridesContainer').style.display = 'block';
+            } else {
+                document.getElementById('mapViewBtn').classList.add('active');
+                document.getElementById('listViewBtn').classList.remove('active');
+                document.getElementById('ridesContainer').style.display = 'block';
+                // simple map placeholder: show grouped pins
+                document.getElementById('ridesContainer').innerHTML = `<div style="padding:36px;text-align:center;border:1px dashed #e0e0e0;border-radius:12px;background:white;">Map view placeholder — integration with map provider can be added. Showing ${filteredRides.length} ride(s).</div>`;
+            }
+        }
+
+        function viewInitialState() {
+            // initial discovery subtitle depending on user
+            const sub = document.getElementById('discoverSubtitle');
+            if (user) sub.textContent = `Signed in as ${user.name} — role: ${user.role.toUpperCase()}`;
+            else sub.textContent = 'Find your next ride (sign in to request or post).';
+        }
+
+        function initAfterLogin() {
+            updateUIForUser();
+            viewInitialState();
+            displayRides();
+            renderConversations();
+        }
+
+        /* ----------------- Helpers ----------------- */
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>"'`]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' })[s]);
+        }
+
+        /* ----------------- Init on load ----------------- */
+        (function init() {
+            // if user already saved, close login
+            if (user) {
+                document.getElementById('loginScreen').style.display = 'none';
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+            updateUIForUser();
+            displayRides();
+            renderConversations();
+
+            // wire close modal by clicking overlay
+            document.querySelectorAll('.modal').forEach(m => {
+                m.addEventListener('click', (e) => {
+                    if (e.target === m) m.classList.remove('active');
+                });
+            });
+
+            // demo: attach enter key to search fields
+            ['searchFrom', 'searchTo'].forEach(id => {
+                document.getElementById(id).addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') applyFilters();
+                });
+            });
+        })();
+
+        // small polyfills: in case addDaysISO used above
+        function addDaysISO(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d.toISOString().slice(0, 10);
+        }
+    </script>
+</body>
+
+</html>

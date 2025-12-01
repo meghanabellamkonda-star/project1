@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus RideShare - Student Mobility Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .logo {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .logo-text h2 {
+            font-size: 18px;
+            color: #1f2937;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .user-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #7c3aed;
+        }
+
+        .nav-item.active {
+            background: #ede9fe;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .post-ride-btn {
+            margin: 0 20px 20px;
+            padding: 12px;
+            background: #1f2937;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .post-ride-btn:hover {
+            background: #111827;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-btn,
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .search-btn {
+            background: #1f2937;
+            color: white;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #6b7280;
+        }
+
+        .rides-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .rides-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .view-btn.active {
+            background: #1f2937;
+            color: white;
+        }
+
+        .ride-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .ride-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .driver-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .driver-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .driver-details h3 {
+            font-size: 16px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .driver-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #f59e0b;
+            font-size: 14px;
+        }
+
+        .ride-badge {
+            background: #7c3aed;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .route-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .route-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .route-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .route-dot.start {
+            background: #3b82f6;
+        }
+
+        .route-dot.end {
+            background: #10b981;
+        }
+
+        .route-connector {
+            width: 2px;
+            height: 30px;
+            background: #d1d5db;
+        }
+
+        .route-details {
+            flex: 1;
+        }
+
+        .location {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .trip-details {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .trip-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ride-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .view-details-btn {
+            padding: 10px 24px;
+            background: #1f2937;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .view-details-btn:hover {
+            background: #111827;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+        }
+
+        .progress-step.active {
+            background: #7c3aed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #6b7280;
+        }
+
+        .btn-primary {
+            background: #1f2937;
+            color: white;
+        }
+
+        .ride-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-card:hover {
+            border-color: #7c3aed;
+        }
+
+        .option-card.selected {
+            border-color: #7c3aed;
+            background: #f5f3ff;
+        }
+
+        .option-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <div class="logo-text">
+                <h2>Campus RideShare</h2>
+                <p>Student Mobility</p>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar">S</div>
+            <div>
+                <div style="font-weight: 600; color: #1f2937;">saidulu</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="showPage('discover')">
+                <span>🏠</span> Discover Rides
+            </div>
+            <div class="nav-item" onclick="showPage('messages')">
+                <span>💬</span> Messages
+                <span class="badge">2</span>
+            </div>
+            <div class="nav-item" onclick="showPage('profile')">
+                <span>👤</span> My Profile
+            </div>
+        </nav>
+
+        <button class="post-ride-btn" onclick="openPostRideModal()">
+            <span>+</span> Post Ride
+        </button>
+
+        <div style="padding: 20px; border-top: 1px solid #e0e0e0;">
+            <div class="nav-item">⚙️ Settings</div>
+            <div class="nav-item" style="color: #ef4444;">🚪 Logout</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div id="discoverPage">
+            <div class="header">
+                <h1>Discover Rides</h1>
+                <p>Find your next ride</p>
+
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="From (e.g., Main Campus)" id="searchFrom">
+                    <input type="text" class="search-input" placeholder="To (e.g., Downtown)" id="searchTo">
+                    <button class="search-btn" onclick="searchRides()">🔍 Search</button>
+                    <button class="filter-btn">🎛️ Filters</button>
+                </div>
+            </div>
+
+            <div class="rides-section">
+                <div class="rides-header">
+                    <h2 id="ridesCount">Available Rides</h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active">📋 List</button>
+                        <button class="view-btn">🗺️ Map</button>
+                    </div>
+                </div>
+
+                <div id="ridesContainer"></div>
+            </div>
+        </div>
+
+        <div id="messagesPage" style="display: none;">
+            <div class="header">
+                <h1>Messages</h1>
+                <p>Stay connected with drivers and riders</p>
+            </div>
+            <div class="rides-section">
+                <p style="text-align: center; padding: 40px; color: #6b7280;">Messages feature coming soon!</p>
+            </div>
+        </div>
+
+        <div id="profilePage" style="display: none;">
+            <div class="header">
+                <h1>My Profile</h1>
+                <p>Manage your account settings</p>
+            </div>
+            <div class="rides-section">
+                <p style="text-align: center; padding: 40px; color: #6b7280;">Profile settings coming soon!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Ride Modal -->
+    <div class="modal" id="postRideModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Post a Ride</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="progress-bar">
+                    <div class="progress-step active" id="step1"></div>
+                    <div class="progress-step" id="step2"></div>
+                    <div class="progress-step" id="step3"></div>
+                </div>
+
+                <div id="modalStep1">
+                    <h3 style="margin-bottom: 8px;">Where are you going?</h3>
+                    <div class="form-group">
+                        <label class="form-label">Pickup Location *</label>
+                        <input type="text" class="form-input" placeholder="e.g., Main Campus" id="pickupLocation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Drop-off Location *</label>
+                        <input type="text" class="form-input" placeholder="e.g., Airport" id="dropoffLocation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Route Details (Optional)</label>
+                        <input type="text" class="form-input" placeholder="e.g., Via Highway 101" id="routeDetails">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="nextStep(2)">Next</button>
+                    </div>
+                </div>
+
+                <div id="modalStep2" style="display: none;">
+                    <h3 style="margin-bottom: 8px;">When are you leaving?</h3>
+                    <div class="form-group">
+                        <label class="form-label">Date *</label>
+                        <input type="date" class="form-input" id="rideDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Departure Time *</label>
+                        <input type="time" class="form-input" id="rideTime">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Available Seats</label>
+                        <input type="number" class="form-input" value="4" min="1" max="8" id="availableSeats">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cost per Person (₹)</label>
+                        <input type="number" class="form-input" value="0" min="0" id="costPerPerson">
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">Suggested: ₹102 based on distance
+                        </p>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="nextStep(1)">Back</button>
+                        <button class="btn btn-primary" onclick="nextStep(3)">Next</button>
+                    </div>
+                </div>
+
+                <div id="modalStep3" style="display: none;">
+                    <h3 style="margin-bottom: 16px;">Ride Preferences</h3>
+                    <div class="form-group">
+                        <label class="form-label">Who can see this ride?</label>
+                        <div class="ride-options">
+                            <div class="option-card selected" onclick="selectOption(this)">
+                                <div class="option-title">🎓 College Community Only</div>
+                                <div class="option-description">Only verified students from your college can see and
+                                    join</div>
+                            </div>
+                            <div class="option-card" onclick="selectOption(this)">
+                                <div class="option-title">🌍 Public</div>
+                                <div class="option-description">Anyone can see, but only verified students can join
+                                </div>
+                            </div>
+                            <div class="option-card" onclick="selectOption(this)">
+                                <div class="option-title">👥 Friends Only</div>
+                                <div class="option-description">Only your connected friends can see this ride</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="nextStep(2)">Back</button>
+                        <button class="btn btn-primary" onclick="postRide()">Post Ride</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rides = [];
+        let currentStep = 1;
+
+        function showPage(page) {
+            document.getElementById('discoverPage').style.display = 'none';
+            document.getElementById('messagesPage').style.display = 'none';
+            document.getElementById('profilePage').style.display = 'none';
+
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            if (page === 'discover') {
+                document.getElementById('discoverPage').style.display = 'block';
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (page === 'messages') {
+                document.getElementById('messagesPage').style.display = 'block';
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            } else if (page === 'profile') {
+                document.getElementById('profilePage').style.display = 'block';
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            }
+        }
+
+        function openPostRideModal() {
+            document.getElementById('postRideModal').classList.add('active');
+            currentStep = 1;
+            updateModalStep();
+        }
+
+        function closeModal() {
+            document.getElementById('postRideModal').classList.remove('active');
+        }
+
+        function nextStep(step) {
+            currentStep = step;
+            updateModalStep();
+        }
+
+        function updateModalStep() {
+            document.getElementById('modalStep1').style.display = currentStep === 1 ? 'block' : 'none';
+            document.getElementById('modalStep2').style.display = currentStep === 2 ? 'block' : 'none';
+            document.getElementById('modalStep3').style.display = currentStep === 3 ? 'block' : 'none';
+
+            document.getElementById('step1').classList.toggle('active', currentStep >= 1);
+            document.getElementById('step2').classList.toggle('active', currentStep >= 2);
+            document.getElementById('step3').classList.toggle('active', currentStep >= 3);
+        }
+
+        function selectOption(element) {
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function postRide() {
+            const newRide = {
+                id: rides.length + 1,
+                driver: 'saidulu',
+                pickup: document.getElementById('pickupLocation').value,
+                dropoff: document.getElementById('dropoffLocation').value,
+                date: document.getElementById('rideDate').value,
+                time: document.getElementById('rideTime').value,
+                seats: document.getElementById('availableSeats').value,
+                price: document.getElementById('costPerPerson').value || '19',
+                rating: '5'
+            };
+
+            rides.push(newRide);
+            displayRides();
+            closeModal();
+
+            // Reset form
+            document.getElementById('pickupLocation').value = '';
+            document.getElementById('dropoffLocation').value = '';
+            document.getElementById('routeDetails').value = '';
+            document.getElementById('rideDate').value = '';
+            document.getElementById('rideTime').value = '';
+            document.getElementById('availableSeats').value = '4';
+            document.getElementById('costPerPerson').value = '0';
+        }
+
+        function displayRides() {
+            const container = document.getElementById('ridesContainer');
+
+            if (rides.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📍</div>
+                        <div class="empty-text">No rides found</div>
+                        <div style="color: #9ca3af; font-size: 14px;">Try adjusting your search criteria or filters</div>
+                    </div>
+                `;
+                document.getElementById('ridesCount').textContent = 'Available Rides - 0 rides found';
+                return;
+            }
+
+            document.getElementById('ridesCount').textContent = `Available Rides - ${rides.length} ride${rides.length !== 1 ? 's' : ''} found`;
+
+            container.innerHTML = rides.map(ride => `
+                <div class="ride-card">
+                    <div class="ride-header">
+                        <div class="driver-info">
+                            <div class="driver-avatar">${ride.driver[0].toUpperCase()}</div>
+                            <div class="driver-details">
+                                <h3>${ride.driver}</h3>
+                                <div class="driver-rating">
+                                    <span>⭐</span>
+                                    <span>${ride.rating}</span>
+                                    <span style="color: #6b7280;">• Private Vehicle</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ride-badge">Campus</div>
+                    </div>
+                    
+                    <div class="route-info">
+                        <div class="route-line">
+                            <div class="route-dot start"></div>
+                            <div class="route-connector"></div>
+                            <div class="route-dot end"></div>
+                        </div>
+                        <div class="route-details">
+                            <div class="location">${ride.pickup}</div>
+                            <div style="margin: 8px 0; color: #6b7280; font-size: 12px;">↓ Direct route</div>
+                            <div class="location">${ride.dropoff}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trip-details">
+                        <div class="trip-detail">
+                            <span>📅</span>
+                            <span>${new Date(ride.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                        <div class="trip-detail">
+                            <span>🕐</span>
+                            <span>${ride.time}</span>
+                        </div>
+                        <div class="trip-detail">
+                            <span>👥</span>
+                            <span>${ride.seats} / ${ride.seats} seats</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ride-footer">
+                        <div>
+                            <div class="price">₹${ride.price}</div>
+                            <div class="price-label">per person</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchRides() {
+            const from = document.getElementById('searchFrom').value;
+            const to = document.getElementById('searchTo').value;
+
+            if (from || to) {
+                alert(`Searching for rides from "${from}" to "${to}"`);
+            }
+        }
+
+        // Initialize
+        displayRides();
+    </script>
+</body>
+
+</html>
